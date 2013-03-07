@@ -47,7 +47,7 @@ var qt = (function () {
 			return false;
 		}
 
-		if (this.objects.length < QuadTree.maxFill) {
+		if (this.children === null && this.objects.length < QuadTree.maxFill) {
 			this.objects.push(obj);
 			return true;
 		}
@@ -85,7 +85,7 @@ var qt = (function () {
 
 		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {
 			this.children.forEach(function (c) {
-				c.insert.call(c, o);
+				c.insert(o);
 			});
 		}, this);
 	};
@@ -116,9 +116,6 @@ var qt = (function () {
 		}, true);
 
 		//requestAnimationFrame(setupTimer);
-		qt.subdivide();
-		qt.children[1].subdivide();
-		console.log(qt);
 		drawQuadTree(qt);
 	}
 
@@ -132,9 +129,8 @@ var qt = (function () {
 	*/
 
 	function drawQuadTree(qt) {
-		context.strokeRect(qt.bounds[0], qt.bounds[1], qt.bounds[2], qt.bounds[3]);
+		context.strokeRect(qt.bounds[0], qt.bounds[1], qt.bounds[2] - qt.bounds[0], qt.bounds[3] - qt.bounds[1]);
 
-		/*
 		qt.objects.forEach(function (o) {
 			context.beginPath();
 			context.arc(o.coords[0], o.coords[1], 3, 0, Math.PI * 2, true);
@@ -142,7 +138,6 @@ var qt = (function () {
 
 			context.fill();
 		});
-		*/
 
 		if (qt.children) {
 			qt.children.forEach(drawQuadTree);

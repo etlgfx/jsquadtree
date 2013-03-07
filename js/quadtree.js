@@ -44,21 +44,24 @@ var qt = (function () {
 
 	QuadTree.prototype.insert = function(obj) {
 		if (!this.boundsCheck(obj.coords)) {
-			return;
+			return false;
 		}
 
 		if (this.objects.length < QuadTree.maxFill) {
 			this.objects.push(obj);
-			return;
+			return true;
 		}
 
 		if (this.children === null) {
 			this.subdivide();
 		}
 
-		this.children.forEach(function (c) {
-			c.insert(obj);
-		});
+		if (this.children[0].insert(obj)) return true;
+		if (this.children[1].insert(obj)) return true;
+		if (this.children[2].insert(obj)) return true;
+		if (this.children[3].insert(obj)) return true;
+
+		return false;
 	};
 
 	QuadTree.prototype.boundsCheck = function(point) {
@@ -80,11 +83,9 @@ var qt = (function () {
 			new QuadTree([this.bounds[0] + size, this.bounds[1] + size, this.bounds[2], this.bounds[3]])
 		];
 
-		var objs = this.objects.splice(0, QuadTree.maxFill);
-
-		objs.forEach(function (o) {
+		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {
 			this.children.forEach(function (c) {
-				c.insert(o);
+				c.insert.call(c, o);
 			});
 		}, this);
 	};
@@ -107,10 +108,18 @@ var qt = (function () {
 		window.addEventListener('click', function (evt) {
 			qt.insert(new Obj([evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop]));
 
+			context.clearRect(
+				0, 0,
+				canvas.width, canvas.height);
+
 			drawQuadTree(qt);
 		}, true);
 
 		//requestAnimationFrame(setupTimer);
+		qt.subdivide();
+		qt.children[1].subdivide();
+		console.log(qt);
+		drawQuadTree(qt);
 	}
 
 	/*
@@ -123,10 +132,6 @@ var qt = (function () {
 	*/
 
 	function drawQuadTree(qt) {
-        context.clearRect(
-			0, 0,
-			canvas.width, canvas.height);
-
 		context.strokeRect(qt.bounds[0], qt.bounds[1], qt.bounds[2], qt.bounds[3]);
 
 		/*

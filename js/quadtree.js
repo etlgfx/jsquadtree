@@ -1,14 +1,4 @@
-var qt = (function () {
-	var canvas, context;
-	var ts = null;
-	var start_ts = null;
-
-	var qt = null;
-
-	function Obj(coords) {
-		this.coords = coords;
-	}
-
+define(function (require, exports, module) {
 	function QuadTree(bounds) {
 		this.bounds = bounds;
 
@@ -65,6 +55,9 @@ var qt = (function () {
 	};
 
 	QuadTree.prototype.boundsCheck = function(point) {
+		if (!point || point === undefined)
+			return false;
+
 		if (point[0] < this.bounds[0]) return false;
 		if (point[0] >= this.bounds[2]) return false;
 		if (point[1] < this.bounds[1]) return false;
@@ -90,79 +83,5 @@ var qt = (function () {
 		}, this);
 	};
 
-
-	function init(id) {
-		canvas = document.getElementById(id);
-		canvas.width = 512;
-		canvas.height = 512;
-        context = canvas.getContext('2d');
-
-		(function() {
-			var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-				window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-			window.requestAnimationFrame = requestAnimationFrame;
-		})();
-
-		qt = new QuadTree([0, 0, 512, 512]);
-
-		window.addEventListener('click', function (evt) {
-			qt.insert(new Obj([evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop]));
-
-			context.clearRect(
-				0, 0,
-				canvas.width, canvas.height);
-
-			drawQuadTree(qt);
-		}, true);
-
-		//requestAnimationFrame(setupTimer);
-		drawQuadTree(qt);
-	}
-
-	/*
-	function setupTimer(newts) {
-		ts = newts;
-		start_ts = newts;
-
-		requestAnimationFrame(draw);
-	}
-	*/
-
-	function drawQuadTree(qt) {
-		context.strokeRect(qt.bounds[0], qt.bounds[1], qt.bounds[2] - qt.bounds[0], qt.bounds[3] - qt.bounds[1]);
-
-		qt.objects.forEach(function (o) {
-			context.beginPath();
-			context.arc(o.coords[0], o.coords[1], 3, 0, Math.PI * 2, true);
-			context.closePath();
-
-			context.fill();
-		});
-
-		if (qt.children) {
-			qt.children.forEach(drawQuadTree);
-		}
-	}
-
-	/*
-	function draw(newts) {
-		var frame_ts = (newts - ts) / 1000;
-		var elapsed_ts = (newts - start_ts) / 1000;
-		ts = newts;
-
-        context.clearRect(
-			0, 0,
-			canvas.width, canvas.height);
-
-		drawQuadTree(qt);
-
-		requestAnimationFrame(draw);
-	}
-	*/
-
-	return {
-		'init': init,
-	};
-})();
-
-qt.init('canvas');
+	return QuadTree;
+});

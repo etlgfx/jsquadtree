@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
 	function QuadTree(topleft, bottomright) {
-		this.bounds = topleft.concat(bottomright);
+		this.bounds = topleft.concat(bottomright); //[tl.x, tl.y, br.x, br.y] / [left, top, right, bottom]
 
 		this.objects = [];
 		this.children = null;
@@ -29,7 +29,28 @@ define(function (require, exports, module) {
 	};
 
 	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
-		console.log(topleft, bottomright);
+		if (this.bounds[2] < topleft[0] || bottomright[0] < this.bounds[0] ||
+			this.bounds[3] < topleft[1] || bottomright[1] < this.bounds[1]) {
+			return [];
+		}
+
+		var result = [];
+
+		if (this.children === null) {
+			this.objects.forEach(function (o) {
+				if (o.key[0] >= topleft[0] && o.key[0] <= bottomright[0] &&
+					o.key[1] >= topleft[1] && o.key[1] <= bottomright[1]) {
+					result.push(o);
+				}
+			});
+		}
+		else {
+			this.children.forEach(function (c) {
+				result = result.concat(c.queryBounds(topleft, bottomright));
+			});
+		}
+
+		return result;
 	};
 
 	QuadTree.prototype.insert = function(point, obj) {

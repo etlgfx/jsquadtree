@@ -85,7 +85,7 @@ require(['quadtree'], function (QuadTree) {
 
 						fixBounds(tl, br);
 
-						qt.queryBounds(tl, br);
+						selection = qt.queryBounds(tl, br);
 					}
 					else {
 						qt.insert(coords, {});

@@ -10,6 +10,20 @@ require(['quadtree'], function (QuadTree) {
 	var qt = null;
 	var selection = null;
 
+	function fixBounds(point1, point2) {
+		if (point1[0] > point2[0]) {
+			var t = point1[0];
+			point1[0] = point2[0];
+			point2[0] = t;
+		}
+
+		if (point1[1] > point2[1]) {
+			var t = point1[1];
+			point1[1] = point2[1];
+			point2[1] = t;
+		}
+	}
+
 	function init(id) {
 		canvas = document.getElementById(id);
 		canvas.width = 512;
@@ -30,6 +44,7 @@ require(['quadtree'], function (QuadTree) {
 
 		var mouseStart = null;
 		var mouseDown = false;
+		var mouseRange = false;
 		var selectionDiv = document.getElementById('selection');
 
 		window.addEventListener('mousedown', function (evt) {
@@ -44,11 +59,17 @@ require(['quadtree'], function (QuadTree) {
 		window.addEventListener('mousemove', function (evt) {
 			evt.preventDefault();
 			if (mouseDown) {
+				mouseRange = true;
+				var tl = mouseStart.slice(0);
+				var br = [evt.clientX, evt.clientY];
+
+				fixBounds(tl, br);
+
 				selectionDiv.style.display = 'block';
-				selectionDiv.style.top = mouseStart[1] +'px';
-				selectionDiv.style.left = mouseStart[0] +'px';
-				selectionDiv.style.width = (evt.clientX - mouseStart[0]) +'px';
-				selectionDiv.style.height = (evt.clientY - mouseStart[1]) +'px';
+				selectionDiv.style.top = tl[1] +'px';
+				selectionDiv.style.left = tl[0] +'px';
+				selectionDiv.style.width = (br[0] - tl[0]) +'px';
+				selectionDiv.style.height = (br[1] - tl[1]) +'px';
 			}
 		}, true);
 
@@ -58,10 +79,13 @@ require(['quadtree'], function (QuadTree) {
 
 			switch (evt.which) {
 				case 1: //left click
-					if (mouseDown) {
-						console.log(
-							[mouseStart[0] - canvas.offsetLeft, mouseStart[1] - canvas.offsetTop], 
-							coords);
+					if (mouseRange) {
+						var tl = [mouseStart[0] - canvas.offsetLeft, mouseStart[1] - canvas.offsetTop];
+						var br = coords.slice(0);
+
+						fixBounds(tl, br);
+
+						qt.queryBounds(tl, br);
 					}
 					else {
 						qt.insert(coords, {});
@@ -79,6 +103,7 @@ require(['quadtree'], function (QuadTree) {
 			drawQuadTree(qt);
 			mouseStart = null;
 			mouseDown = false;
+			mouseRange = false;
 			selectionDiv.style.display = 'none';
 		}, true);
 

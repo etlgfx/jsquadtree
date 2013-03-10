@@ -29,7 +29,7 @@ define(function (require, exports, module) {
 	};
 
 	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
-
+		console.log(topleft, bottomright);
 	};
 
 	QuadTree.prototype.insert = function(point, obj) {

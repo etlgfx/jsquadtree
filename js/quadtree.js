@@ -32,13 +32,13 @@ define(function (require, exports, module) {
 	};
 	*/
 
-	QuadTree.prototype.insert = function(obj) {
-		if (!this.boundsCheck(obj.coords)) {
+	QuadTree.prototype.insert = function(point, obj) {
+		if (!this.boundsCheck(point)) {
 			return false;
 		}
 
 		if (this.children === null && this.objects.length < QuadTree.maxFill) {
-			this.objects.push(obj);
+			this.objects.push({key: point, value: obj});
 			return true;
 		}
 
@@ -46,10 +46,10 @@ define(function (require, exports, module) {
 			this.subdivide();
 		}
 
-		if (this.children[0].insert(obj)) return true;
-		if (this.children[1].insert(obj)) return true;
-		if (this.children[2].insert(obj)) return true;
-		if (this.children[3].insert(obj)) return true;
+		if (this.children[0].insert(point, obj)) return true;
+		if (this.children[1].insert(point, obj)) return true;
+		if (this.children[2].insert(point, obj)) return true;
+		if (this.children[3].insert(point, obj)) return true;
 
 		return false;
 	};
@@ -78,7 +78,7 @@ define(function (require, exports, module) {
 
 		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {
 			this.children.forEach(function (c) {
-				c.insert(o);
+				c.insert(o.key, o.value);
 			});
 		}, this);
 	};

@@ -22,13 +22,14 @@ define(function (require, exports, module) {
 		var result = [];
 
 		this.children.forEach(function (c) {
-			result.concat(c.query(point));
+			result = result.concat(c.query(point));
 		});
 
 		return result;
 	};
 
 	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
+
 	};
 
 	QuadTree.prototype.insert = function(point, obj) {
@@ -69,10 +70,18 @@ define(function (require, exports, module) {
 		var size = (this.bounds[2] - this.bounds[0]) / 2;
 
 		this.children = [
-			new QuadTree([this.bounds[0], this.bounds[1], this.bounds[0] + size, this.bounds[1] + size]),
-			new QuadTree([this.bounds[0] + size, this.bounds[1], this.bounds[2], this.bounds[1] + size]),
-			new QuadTree([this.bounds[0], this.bounds[1] + size, this.bounds[0] + size, this.bounds[3]]),
-			new QuadTree([this.bounds[0] + size, this.bounds[1] + size, this.bounds[2], this.bounds[3]])
+			new QuadTree(
+				[this.bounds[0], this.bounds[1]],
+				[this.bounds[0] + size, this.bounds[1] + size]),
+			new QuadTree(
+				[this.bounds[0] + size, this.bounds[1]],
+				[this.bounds[2], this.bounds[1] + size]),
+			new QuadTree(
+				[this.bounds[0], this.bounds[1] + size],
+				[this.bounds[0] + size, this.bounds[3]]),
+			new QuadTree(
+				[this.bounds[0] + size, this.bounds[1] + size],
+				[this.bounds[2], this.bounds[3]])
 		];
 
 		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {

@@ -23,8 +23,23 @@ require(['quadtree'], function (QuadTree) {
 
 		qt = new QuadTree([0, 0], [512, 512]);
 
-		window.addEventListener('click', function (evt) {
-			qt.insert([evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop], {});
+		window.addEventListener('contextmenu', function (evt) {
+			evt.preventDefault();
+		}, true);
+
+		window.addEventListener('mouseup', function (evt) {
+			var coords = [evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop];
+			evt.preventDefault();
+
+			switch (evt.which) {
+				case 1: //left click
+					qt.insert(coords, {});
+					break;
+				case 3: //right click
+					console.log(qt);
+					console.log(qt.query(coords));
+					break;
+			}
 
 			context.clearRect(
 				0, 0,

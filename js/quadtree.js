@@ -1,12 +1,13 @@
 define(function (require, exports, module) {
-	function QuadTree(bounds) {
-		this.bounds = bounds;
+	function QuadTree(topleft, bottomright) {
+		this.bounds = topleft.concat(bottomright);
 
 		this.objects = [];
 		this.children = null;
 	}
 
 	QuadTree.maxFill = 2;
+	QuadTree.maxDepth = 6;
 
 	//return all points inside the same box as point
 	QuadTree.prototype.query = function(point) {
@@ -27,10 +28,8 @@ define(function (require, exports, module) {
 		return result;
 	};
 
-	/*
-	QuadTree.prototype.queryBounds = function(bounds) {
+	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
 	};
-	*/
 
 	QuadTree.prototype.insert = function(point, obj) {
 		if (!this.boundsCheck(point)) {

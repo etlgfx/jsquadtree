@@ -21,10 +21,10 @@ require(['quadtree'], function (QuadTree) {
 			window.requestAnimationFrame = requestAnimationFrame;
 		})();
 
-		qt = new QuadTree([0, 0, 512, 512]);
+		qt = new QuadTree([0, 0], [512, 512]);
 
 		window.addEventListener('click', function (evt) {
-			qt.insert({coords: [evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop]});
+			qt.insert([evt.clientX - canvas.offsetLeft, evt.clientY - canvas.offsetTop], {});
 
 			context.clearRect(
 				0, 0,
@@ -42,7 +42,7 @@ require(['quadtree'], function (QuadTree) {
 
 		qt.objects.forEach(function (o) {
 			context.beginPath();
-			context.arc(o.coords[0], o.coords[1], 2, 0, Math.PI * 2, true);
+			context.arc(o.key[0], o.key[1], 2, 0, Math.PI * 2, true);
 			context.closePath();
 
 			context.fill();

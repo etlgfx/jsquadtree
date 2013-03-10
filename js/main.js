@@ -8,6 +8,7 @@ require(['quadtree'], function (QuadTree) {
 	var start_ts = null;
 
 	var qt = null;
+	var selection = null;
 
 	function init(id) {
 		canvas = document.getElementById(id);
@@ -36,8 +37,7 @@ require(['quadtree'], function (QuadTree) {
 					qt.insert(coords, {});
 					break;
 				case 3: //right click
-					console.log(qt);
-					console.log(qt.query(coords));
+					selection = qt.query(coords);
 					break;
 			}
 
@@ -60,7 +60,19 @@ require(['quadtree'], function (QuadTree) {
 			context.arc(o.key[0], o.key[1], 2, 0, Math.PI * 2, true);
 			context.closePath();
 
-			context.fill();
+			var selected = false;
+
+			if (selection) {
+				selection.forEach(function (s) {
+					if (s.key === o.key)
+						selected = true;
+				});
+			}
+
+			if (selected)
+				context.fill();
+			else
+				context.stroke();
 		});
 
 		if (qt.children) {

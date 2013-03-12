@@ -1,6 +1,7 @@
 define(function (require, exports, module) {
-	function QuadTree(topleft, bottomright) {
+	function QuadTree(topleft, bottomright, depth) {
 		this.bounds = topleft.concat(bottomright); //[tl.x, tl.y, br.x, br.y] / [left, top, right, bottom]
+		this.depth = depth === undefined ? 0 : depth;
 
 		this.objects = [];
 		this.children = null;
@@ -58,7 +59,7 @@ define(function (require, exports, module) {
 			return false;
 		}
 
-		if (this.children === null && this.objects.length < QuadTree.maxFill) {
+		if (this.children === null && (this.objects.length < QuadTree.maxFill || this.depth >= QuadTree.maxDepth)) {
 			this.objects.push({key: point, value: obj});
 			return true;
 		}
@@ -93,16 +94,20 @@ define(function (require, exports, module) {
 		this.children = [
 			new QuadTree(
 				[this.bounds[0], this.bounds[1]],
-				[this.bounds[0] + size, this.bounds[1] + size]),
+				[this.bounds[0] + size, this.bounds[1] + size],
+				this.depth + 1),
 			new QuadTree(
 				[this.bounds[0] + size, this.bounds[1]],
-				[this.bounds[2], this.bounds[1] + size]),
+				[this.bounds[2], this.bounds[1] + size],
+				this.depth + 1),
 			new QuadTree(
 				[this.bounds[0], this.bounds[1] + size],
-				[this.bounds[0] + size, this.bounds[3]]),
+				[this.bounds[0] + size, this.bounds[3]],
+				this.depth + 1),
 			new QuadTree(
 				[this.bounds[0] + size, this.bounds[1] + size],
-				[this.bounds[2], this.bounds[3]])
+				[this.bounds[2], this.bounds[3]],
+				this.depth + 1)
 		];
 
 		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {
@@ -111,6 +116,15 @@ define(function (require, exports, module) {
 			});
 		}, this);
 	};
+
+	QuadTreeArray = function(size) {
+		this.size = size;
+		this.quads = null;
+	};
+
+	QuadTreeArray.prototype.insert = function(point, obj) {};
+	QuadTreeArray.prototype.query = function(point, obj) {};
+	QuadTreeArray.prototype.queryBounds = function(point, obj) {};
 
 	return QuadTree;
 });

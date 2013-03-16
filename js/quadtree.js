@@ -1,4 +1,23 @@
-define(function (require, exports, module) {
+/*!
+* quadtree.js: a JavaScript QuadTree implementation
+* https://github.com/etlgfx/jsquadtree
+* License MIT (c) Eric Liang <etlgfx>
+*/
+(function (name, definition) {
+	if (typeof define == 'function') //we're probably using require.js or similar
+		define(definition);
+	else if (typeof module != 'undefined') //we're probably using node.js
+		module.exports = definition();
+	else //we're probably loading this directly in browser so assign the result to this (ie. window)
+		this[name] = definition();
+})('quadtree', function () {
+	/**
+	 * constructor
+	 *
+	 * @param Array topleft [x, y]
+	 * @param Array bottomright [x, y]
+	 * @param int depth - depth of current QuadTree instance default 0, don't set this manually
+	 */
 	function QuadTree(topleft, bottomright, depth) {
 		this.bounds = topleft.concat(bottomright); //[tl.x, tl.y, br.x, br.y] / [left, top, right, bottom]
 		this.depth = depth === undefined ? 0 : depth;
@@ -10,7 +29,13 @@ define(function (require, exports, module) {
 	QuadTree.maxFill = 2;
 	QuadTree.maxDepth = 6;
 
-	//return all points inside the same box as point
+	/**
+	 * return all points inside the same box as point
+	 *
+	 * @param Array point [x, y]
+	 *
+	 * @return Array of objects
+	 */
 	QuadTree.prototype.query = function(point) {
 		if (!this.boundsCheck(point)) {
 			return [];
@@ -29,6 +54,16 @@ define(function (require, exports, module) {
 		return result;
 	};
 
+	/**
+	 * search or all objects inside the QuadTree within the given bounds. This
+	 * method assumes topleft and bottomright to be in their correct respective
+	 * orders
+	 *
+	 * @param Array topleft [x, y]
+	 * @param Array bottomright [x, y]
+	 *
+	 * @return Array of objects
+	 */
 	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
 		if (this.bounds[2] < topleft[0] || bottomright[0] < this.bounds[0] ||
 			this.bounds[3] < topleft[1] || bottomright[1] < this.bounds[1]) {
@@ -54,6 +89,16 @@ define(function (require, exports, module) {
 		return result;
 	};
 
+	/**
+	 * insert a new object into the QuadTree, if necessary subdivide the
+	 * current Quad depending on the maxFill and maxDepth config options
+	 *
+	 * @param Array point [x, y]
+	 * @param Object obj - anything you want to insert
+	 *
+	 * @return bool - true if the object was inserted, false if the object was outside
+	 * the bounds
+	 */
 	QuadTree.prototype.insert = function(point, obj) {
 		if (!this.boundsCheck(point)) {
 			return false;
@@ -76,6 +121,13 @@ define(function (require, exports, module) {
 		return false;
 	};
 
+	/**
+	 * check if the given point is within the bounds of the current Quad
+	 *
+	 * @param Array point [x, y]
+	 *
+	 * return bool
+	 */
 	QuadTree.prototype.boundsCheck = function(point) {
 		if (!point || point === undefined)
 			return false;
@@ -88,6 +140,10 @@ define(function (require, exports, module) {
 		return true;
 	};
 
+	/**
+	 * subdivide the QuadTree instance. If there are objects inside the current
+	 * Quad, they will be distributed over the resulting child Quads
+	 */
 	QuadTree.prototype.subdivide = function() {
 		var size = (this.bounds[2] - this.bounds[0]) / 2;
 
@@ -117,13 +173,24 @@ define(function (require, exports, module) {
 		}, this);
 	};
 
+	/**
+	 * constructor
+	 */
 	QuadTreeArray = function(size) {
 		this.size = size;
 		this.quads = null;
 	};
 
+	/**
+	 */
 	QuadTreeArray.prototype.insert = function(point, obj) {};
+
+	/**
+	 */
 	QuadTreeArray.prototype.query = function(point, obj) {};
+
+	/**
+	 */
 	QuadTreeArray.prototype.queryBounds = function(point, obj) {};
 
 	return QuadTree;

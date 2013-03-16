@@ -10,6 +10,13 @@ require(['quadtree'], function (QuadTree) {
 	var qt = null;
 	var selection = null;
 
+	/**
+	 * ensure two sets of coordinates are in [top, left], [bottom, right] order.
+	 * Modifies arrays by reference
+	 *
+	 * @param Array point1 [x, y]
+	 * @param Array point2 [x, y]
+	 */
 	function fixBounds(point1, point2) {
 		if (point1[0] > point2[0]) {
 			var t = point1[0];
@@ -24,6 +31,11 @@ require(['quadtree'], function (QuadTree) {
 		}
 	}
 
+	/**
+	 * initialize the demo using the given canvas id
+	 *
+	 * @param String canvas id
+	 */
 	function init(id) {
 		canvas = document.getElementById(id);
 		canvas.width = 512;
@@ -111,6 +123,12 @@ require(['quadtree'], function (QuadTree) {
 		drawQuadTree(qt);
 	}
 
+	/**
+	 * normally you wouldn't need to draw the quad tree, this is purely for the
+	 * purposes of the demo, so it's not included in quadtree.js
+	 *
+	 * @param QuadTree qt
+	 */
 	function drawQuadTree(qt) {
 		context.strokeRect(qt.bounds[0], qt.bounds[1], qt.bounds[2] - qt.bounds[0], qt.bounds[3] - qt.bounds[1]);
 

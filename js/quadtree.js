@@ -35,7 +35,7 @@
 	 * }
 	 */
 	function QuadTree(config) {
-		if (config.x === undefined || config.y === undefined || config.size === undefined)
+		if (config === undefined || config.x === undefined || config.y === undefined || config.size === undefined)
 			throw 'x,y,size are required';
 
 		this.bounds = [config.x, config.y, config.x + config.size, config.y + config.size];

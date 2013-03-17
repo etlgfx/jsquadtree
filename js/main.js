@@ -48,7 +48,7 @@ require(['quadtree'], function (QuadTree) {
 			window.requestAnimationFrame = requestAnimationFrame;
 		})();
 
-		qt = new QuadTree([0, 0], [512, 512]);
+		qt = new QuadTree({x: 0, y: 0, size: 512});
 
 		window.addEventListener('contextmenu', function (evt) {
 			evt.preventDefault();

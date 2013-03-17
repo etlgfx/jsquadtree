@@ -11,23 +11,38 @@
 	else //we're probably loading this directly in browser so assign the result to this (ie. window)
 		this[name] = definition();
 })('quadtree', function () {
+
+	/**
+	 * @var maxFill default maximum number of objects inside each quad before subdividing
+	 */
+	QuadTree.maxFill = 2;
+
+	/**
+	 * @var maxDepth default maximum depth of subdivision
+	 */
+	QuadTree.maxDepth = 6;
+
 	/**
 	 * constructor
 	 *
-	 * @param Array topleft [x, y]
-	 * @param Array bottomright [x, y]
-	 * @param int depth - depth of current QuadTree instance default 0, don't set this manually
+	 * @param Object config {}
 	 */
-	function QuadTree(topleft, bottomright, depth) {
-		this.bounds = topleft.concat(bottomright); //[tl.x, tl.y, br.x, br.y] / [left, top, right, bottom]
-		this.depth = depth === undefined ? 0 : depth;
+	function QuadTree(config) {
+		if (config.x === undefined || config.y === undefined || config.size === undefined)
+			throw 'x,y,size are required';
+
+		this.bounds = [config.x, config.y, config.x + config.size, config.y + config.size];
+		this.depth = config.depth === undefined ? 0 : config.depth;
+		this.size = config.size;
 
 		this.objects = [];
 		this.children = null;
-	}
 
-	QuadTree.maxFill = 2;
-	QuadTree.maxDepth = 6;
+		this.config = {
+			maxFill: config.maxFill === undefined ? QuadTree.maxFill : config.maxFill,
+			maxDepth: config.maxDepth === undefined ? QuadTree.maxDepth : config.maxDepth
+		};
+	}
 
 	/**
 	 * return all points inside the same box as point
@@ -104,7 +119,7 @@
 			return false;
 		}
 
-		if (this.children === null && (this.objects.length < QuadTree.maxFill || this.depth >= QuadTree.maxDepth)) {
+		if (this.children === null && (this.objects.length < this.config.maxFill || this.depth >= this.config.maxDepth)) {
 			this.objects.push({key: point, value: obj});
 			return true;
 		}
@@ -145,28 +160,44 @@
 	 * Quad, they will be distributed over the resulting child Quads
 	 */
 	QuadTree.prototype.subdivide = function() {
-		var size = (this.bounds[2] - this.bounds[0]) / 2;
+		var size = this.size / 2;
 
 		this.children = [
-			new QuadTree(
-				[this.bounds[0], this.bounds[1]],
-				[this.bounds[0] + size, this.bounds[1] + size],
-				this.depth + 1),
-			new QuadTree(
-				[this.bounds[0] + size, this.bounds[1]],
-				[this.bounds[2], this.bounds[1] + size],
-				this.depth + 1),
-			new QuadTree(
-				[this.bounds[0], this.bounds[1] + size],
-				[this.bounds[0] + size, this.bounds[3]],
-				this.depth + 1),
-			new QuadTree(
-				[this.bounds[0] + size, this.bounds[1] + size],
-				[this.bounds[2], this.bounds[3]],
-				this.depth + 1)
+			new QuadTree({
+				x: this.bounds[0],
+				y: this.bounds[1],
+				size: size,
+				depth: this.depth + 1,
+				maxFill: this.maxFill,
+				maxDepth: this.maxDepth,
+			}),
+			new QuadTree({
+				x: this.bounds[0] + size,
+				y: this.bounds[1],
+				size: size,
+				depth: this.depth + 1,
+				maxFill: this.maxFill,
+				maxDepth: this.maxDepth,
+			}),
+			new QuadTree({
+				x: this.bounds[0],
+				y: this.bounds[1] + size,
+				size: size,
+				depth: this.depth + 1,
+				maxFill: this.maxFill,
+				maxDepth: this.maxDepth,
+			}),
+			new QuadTree({
+				x: this.bounds[0] + size,
+				y: this.bounds[1] + size,
+				size: size,
+				depth: this.depth + 1,
+				maxFill: this.maxFill,
+				maxDepth: this.maxDepth,
+			}),
 		];
 
-		this.objects.splice(0, QuadTree.maxFill).forEach(function (o) {
+		this.objects.splice(0, this.config.maxFill).forEach(function (o) {
 			this.children.forEach(function (c) {
 				c.insert(o.key, o.value);
 			});

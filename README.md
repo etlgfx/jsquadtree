@@ -22,7 +22,7 @@ Using `node.js`:
 
 Now that the QuadTree object is in scope you can instantiate a new QuadTree by simply doing:
 
-	var qt = new QuadTree([0, 0], [512, 512]);
+	var qt = new QuadTree({x: 0, y: 0, size: 512});
 
 Inserting objects into the QuadTree is simple:
 

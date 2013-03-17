@@ -243,6 +243,8 @@
 	 * @param Array point [x, y]
 	 * @param Object obj
 	 * @param Array newpoint [x, y]
+	 *
+	 * @return bool true if object was moved
 	 */
 	QuadTree.prototype.move = function (point, obj, newpoint) {
 		var quad = this.queryQuad(point);
@@ -256,21 +258,31 @@
 					quad.objects.splice(i, 1);
 					this.insert(newpoint, obj);
 				}
+
+				return true;
 			}
 		}
+
+		return false;
 	};
 
 	/**
 	 * delete an object from point
-	QuadTree.prototype.remove = function (point, obj) {
-		this.query(point).forEach(function (c) {
-			if (c === obj) {
-				this.insert(newpoint, obj);
-			}
-		}, this);
-	};
+	 *
+	 * @return bool true if object was deleted
 	 */
+	QuadTree.prototype.remove = function (point, obj) {
+		var quad = this.queryQuad(point);
 
+		for (var i = 0; i < quad.children.length; i++) {
+			if (quad.objects[i].key === point && quad.objects[i].value === obj) {
+				quad.objects.splice(i, 1);
+				return true;
+			}
+		}
+
+		return false;
+	};
 
 	/**
 	 * constructor

@@ -105,6 +105,8 @@
 	 * method assumes topleft and bottomright to be in their correct respective
 	 * orders
 	 *
+	 * TODO ??modify queryBounds param to {top: y, left: x, bottom: y, right: x}??
+	 *
 	 * @param Array topleft [x, y]
 	 * @param Array bottomright [x, y]
 	 *
@@ -246,8 +248,14 @@
 		var quad = this.queryQuad(point);
 
 		for (var i = 0; i < quad.children.length; i++) {
-			if (quad.objects[i] === obj) {
-				this.insert(newpoint, obj);
+			if (quad.objects[i].key === point && quad.objects[i].value === obj) {
+				if (quad.boundsCheck(newpoint)) {
+					quad.objects[i].key = newpoint;
+				}
+				else {
+					quad.objects.splice(i, 1);
+					this.insert(newpoint, obj);
+				}
 			}
 		}
 	};

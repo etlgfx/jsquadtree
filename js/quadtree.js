@@ -25,7 +25,14 @@
 	/**
 	 * constructor
 	 *
-	 * @param Object config {}
+	 * @param Object config {
+	 *    x: Number, (required)
+	 *    y: Number, (required)
+	 *    size: Number, (required)
+	 *    depth: Number, (optional, auto set, don't pass manually)
+	 *    maxDepth: Number, (optional)
+	 *    maxFill: Number, (optional)
+	 * }
 	 */
 	function QuadTree(config) {
 		if (config.x === undefined || config.y === undefined || config.size === undefined)

@@ -102,7 +102,7 @@
 
 			if (result !== null)
 				return result;
-		});
+		}
 
 		return null;
 	};

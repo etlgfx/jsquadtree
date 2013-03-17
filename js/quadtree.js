@@ -51,7 +51,7 @@
 	 *
 	 * @return Array of objects
 	 */
-	QuadTree.prototype.query = function(point) {
+	QuadTree.prototype.query = function (point) {
 		if (!this.boundsCheck(point)) {
 			return [];
 		}
@@ -62,11 +62,42 @@
 
 		var result = [];
 
-		this.children.forEach(function (c) {
-			result = result.concat(c.query(point));
-		});
+		for (var i = 0; i < this.children.length; i++) {
+			result = result.concat(this.children[i].query(point));
+
+			if (result)
+				break;
+		}
 
 		return result;
+	};
+
+	/**
+	 * return the quad that contains given points
+	 *
+	 * @param Array point [x, y]
+	 *
+	 * @return QuadTree
+	 */
+	QuadTree.prototype.queryQuad = function (point) {
+		if (!this.boundsCheck(point)) {
+			return null;
+		}
+
+		if (this.children === null) {
+			return this;
+		}
+
+		var result = null;
+
+		for (var i = 0; i < this.children.length; i++) {
+			result = this.children[i].queryQuad(point);
+
+			if (result !== null)
+				return result;
+		});
+
+		return null;
 	};
 
 	/**
@@ -79,7 +110,7 @@
 	 *
 	 * @return Array of objects
 	 */
-	QuadTree.prototype.queryBounds = function(topleft, bottomright) {
+	QuadTree.prototype.queryBounds = function (topleft, bottomright) {
 		if (this.bounds[2] < topleft[0] || bottomright[0] < this.bounds[0] ||
 			this.bounds[3] < topleft[1] || bottomright[1] < this.bounds[1]) {
 			return [];
@@ -114,7 +145,7 @@
 	 * @return bool - true if the object was inserted, false if the object was outside
 	 * the bounds
 	 */
-	QuadTree.prototype.insert = function(point, obj) {
+	QuadTree.prototype.insert = function (point, obj) {
 		if (!this.boundsCheck(point)) {
 			return false;
 		}
@@ -143,7 +174,7 @@
 	 *
 	 * return bool
 	 */
-	QuadTree.prototype.boundsCheck = function(point) {
+	QuadTree.prototype.boundsCheck = function (point) {
 		if (!point || point === undefined)
 			return false;
 
@@ -159,7 +190,7 @@
 	 * subdivide the QuadTree instance. If there are objects inside the current
 	 * Quad, they will be distributed over the resulting child Quads
 	 */
-	QuadTree.prototype.subdivide = function() {
+	QuadTree.prototype.subdivide = function () {
 		var size = this.size / 2;
 
 		this.children = [
@@ -205,24 +236,53 @@
 	};
 
 	/**
+	 * move an object from point to newpoint
+	 *
+	 * @param Array point [x, y]
+	 * @param Object obj
+	 * @param Array newpoint [x, y]
+	 */
+	QuadTree.prototype.move = function (point, obj, newpoint) {
+		var quad = this.queryQuad(point);
+
+		for (var i = 0; i < quad.children.length; i++) {
+			if (quad.objects[i] === obj) {
+				this.insert(newpoint, obj);
+			}
+		}
+	};
+
+	/**
+	 * delete an object from point
+	QuadTree.prototype.remove = function (point, obj) {
+		this.query(point).forEach(function (c) {
+			if (c === obj) {
+				this.insert(newpoint, obj);
+			}
+		}, this);
+	};
+	 */
+
+
+	/**
 	 * constructor
 	 */
-	QuadTreeArray = function(size) {
+	QuadTreeArray = function (size) {
 		this.size = size;
 		this.quads = null;
 	};
 
 	/**
 	 */
-	QuadTreeArray.prototype.insert = function(point, obj) {};
+	QuadTreeArray.prototype.insert = function (point, obj) {};
 
 	/**
 	 */
-	QuadTreeArray.prototype.query = function(point, obj) {};
+	QuadTreeArray.prototype.query = function (point, obj) {};
 
 	/**
 	 */
-	QuadTreeArray.prototype.queryBounds = function(point, obj) {};
+	QuadTreeArray.prototype.queryBounds = function (point, obj) {};
 
 	return QuadTree;
 });

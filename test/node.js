@@ -36,9 +36,16 @@ var obj = {foo: 'bar'};
 assert.equal(true, qt.insert([5, 5], {foo: 'bar'}));
 assert.equal(false, qt.insert([-5, -5], {foo: null}));
 
+assert.equal(true, qt.insert([300, 300], {foo: 'bar'}));
+assert.equal(true, qt.insert([350, 350], {foo: 'bar'}));
+
 var res = qt.query([0, 0]);
 assert.deepEqual([{key: [5, 5], value: obj}], res);
 assert.equal(1,     res.length);
+
+var res = qt.query([275, 275]);
+assert.deepEqual([{key: [300, 300], value: obj}, {key: [350, 350], value: obj}], res);
+assert.equal(2,     res.length);
 
 var res = qt.queryBounds([0, 0], [10, 10]);
 assert.deepEqual([{key: [5, 5], value: obj}], res);

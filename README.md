@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/etlgfx/jsquadtree.png)](https://travis-ci.org/etlgfx/jsquadtree)
 jsquadtree
 ==========
 Implementation of a QuadTree in JavaScript

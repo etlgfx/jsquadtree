@@ -79,7 +79,7 @@
 		*/
 
 		for (var i = 0; i < this.children.length; i++) {
-			result = result.concat(e.query(point));
+			result = result.concat(this.children[i].query(point));
 
 			if (result.length)
 				break;

@@ -10,7 +10,7 @@
     },
     "keywords": "quadtree",
     "scripts": {
-        "test": "./node_modules/mocha/bin/mocha"
+        "test": "mocha -R list"
     },
     "dependencies": {
         "mocha": "*"

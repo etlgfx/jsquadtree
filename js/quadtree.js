@@ -69,8 +69,17 @@
 
 		var result = [];
 
+		/*
+		this.children.forEach(function (e) {
+			result = result.concat(e.query(point));
+
+			if (result.length)
+				break;
+		}); //TODO break doesn't work from forEach, some may work, but isn't as clear?
+		*/
+
 		for (var i = 0; i < this.children.length; i++) {
-			result = result.concat(this.children[i].query(point));
+			result = result.concat(e.query(point));
 
 			if (result.length)
 				break;
@@ -84,27 +93,25 @@
 	 *
 	 * @param Array point [x, y]
 	 *
-	 * @return QuadTree
+	 * @return QuadTree or undefined
 	 */
 	QuadTree.prototype.queryQuad = function (point) {
 		if (!this.boundsCheck(point)) {
-			return null;
+			return;
 		}
 
 		if (this.children === null) {
 			return this;
 		}
 
-		var result = null;
+		var result;
 
 		for (var i = 0; i < this.children.length; i++) {
 			result = this.children[i].queryQuad(point);
 
-			if (result !== null)
+			if (result !== undefined)
 				return result;
 		}
-
-		return null;
 	};
 
 	/**
@@ -151,29 +158,27 @@
 	 * @param Array point [x, y]
 	 * @param Object obj - anything you want to insert
 	 *
-	 * @return bool - true if the object was inserted, false if the object was outside
+	 * @return QuadTree - this if the object was inserted, undefined if the object was outside
 	 * the bounds
 	 */
 	QuadTree.prototype.insert = function (point, obj) {
 		if (!this.boundsCheck(point)) {
-			return false;
+			return;
 		}
 
 		if (this.children === null && (this.objects.length < this.config.maxFill || this.depth >= this.config.maxDepth)) {
 			this.objects.push({key: point, value: obj});
-			return true;
+			return this;
 		}
 
 		if (this.children === null) {
 			this.subdivide();
 		}
 
-		if (this.children[0].insert(point, obj)) return true;
-		if (this.children[1].insert(point, obj)) return true;
-		if (this.children[2].insert(point, obj)) return true;
-		if (this.children[3].insert(point, obj)) return true;
-
-		return false;
+		if (this.children[0].insert(point, obj)) return this;
+		if (this.children[1].insert(point, obj)) return this;
+		if (this.children[2].insert(point, obj)) return this;
+		if (this.children[3].insert(point, obj)) return this;
 	};
 
 	/**
@@ -251,7 +256,7 @@
 	 * @param Object obj
 	 * @param Array newpoint [x, y]
 	 *
-	 * @return bool true if object was moved
+	 * @return QuadTree if object was moved
 	 */
 	QuadTree.prototype.move = function (point, obj, newpoint) {
 		var quad = this.queryQuad(point);
@@ -266,17 +271,15 @@
 					this.insert(newpoint, obj);
 				}
 
-				return true;
+				return this;
 			}
 		}
-
-		return false;
 	};
 
 	/**
 	 * delete an object from point
 	 *
-	 * @return bool true if object was deleted
+	 * @return QuadTree object was deleted from
 	 */
 	QuadTree.prototype.remove = function (point, obj) {
 		var quad = this.queryQuad(point);
@@ -284,11 +287,9 @@
 		for (var i = 0; i < quad.children.length; i++) {
 			if (quad.objects[i].key === point && quad.objects[i].value === obj) {
 				quad.objects.splice(i, 1);
-				return true;
+				return this;
 			}
 		}
-
-		return false;
 	};
 
 	/**
@@ -296,12 +297,27 @@
 	 */
 	QuadTreeArray = function (size) {
 		this.size = size;
-		this.quads = null;
+		this.quads = [];
 	};
 
 	/**
 	 */
-	QuadTreeArray.prototype.insert = function (point, obj) {};
+	QuadTreeArray.prototype.insert = function (point, obj) {
+		var qx = Math.floor(point[0] / this.size);
+		var qy = Math.floor(point[1] / this.size);
+
+		if (this.quads[qx]) {
+			if (this.quads[qx][qy] === undefined) {
+				this.quads[qx][qy] = new QuadTree();
+			}
+		}
+		else {
+			this.quads[qx] = [];
+			this.quads[qx][qy] = new QuadTree();
+		}
+
+		return this.quads[qx][qy].insert(point, obj);
+	};
 
 	/**
 	 */

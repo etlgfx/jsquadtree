@@ -1,21 +1,31 @@
-var assert = require('assert');
-
-var QuadTree = require('../js/quadtree');
+var mocha = require('mocha'),
+    assert = require('assert'),
+    QuadTree = require('../js/quadtree');
 
 var x = 0, y = 0, size = 512;
 
-assert.throws(function () { new QuadTree() }, 'x,y,size are required');
-assert.throws(function () { new QuadTree([0, 0]) }, 'x,y,size are required');
+describe('QuadTree', function () {
+	describe('constructor', function () {
+		it('should throw on invalid params', function () {
+			assert.throws(function () { new QuadTree() }, 'x,y,size are required');
+			assert.throws(function () { new QuadTree([0, 0]) }, 'x,y,size are required');
+		});
 
-var qt = new QuadTree({x: x, y: y, size: size});
+		it('should initialize with parameters', function () {
+			var qt = new QuadTree({x: x, y: y, size: size});
 
-assert.equal(x,        qt.bounds[0]);
-assert.equal(y,        qt.bounds[1]);
-assert.equal(x + size, qt.bounds[2]);
-assert.equal(y + size, qt.bounds[3]);
+			assert.equal(x,        qt.bounds[0]);
+			assert.equal(y,        qt.bounds[1]);
+			assert.equal(x + size, qt.bounds[2]);
+			assert.equal(y + size, qt.bounds[3]);
 
-assert.equal(QuadTree.maxDepth, qt.config.maxDepth);
-assert.equal(QuadTree.maxFill,  qt.config.maxFill);
+			assert.equal(QuadTree.maxDepth, qt.config.maxDepth);
+			assert.equal(QuadTree.maxFill,  qt.config.maxFill);
+		});
+	});
+});
+
+
 
 var qt = new QuadTree({x: x, y: y, size: size, maxDepth: 2, maxFill: 1});
 assert.equal(2, qt.config.maxDepth);
@@ -32,6 +42,7 @@ assert.equal(0,        res.length);
 
 assert.equal(qt, qt.queryQuad([0, 0]));
 
+/*
 var obj = {foo: 'bar'};
 assert.equal(true, qt.insert([5, 5], {foo: 'bar'}));
 assert.equal(false, qt.insert([-5, -5], {foo: null}));
@@ -54,3 +65,4 @@ assert.equal(1,     res.length);
 
 
 console.log(qt);
+*/
